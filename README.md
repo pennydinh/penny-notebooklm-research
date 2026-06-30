@@ -1,163 +1,119 @@
 # 🔬 Penny NotebookLM Research
 
-> MCP server cho Google NotebookLM — tích hợp Brave Search & Apify để nghiên cứu YouTube tự động.  
-> Dùng với **Claude Code** hoặc chạy độc lập qua **localhost web UI**.
+Nghiên cứu YouTube tự động: tìm video viral → phân tích trend → gợi ý ideas → viết script.
+
+Có 2 cách dùng:
+- **Skill cho Cowork** (không cần cài gì) → tải file `penny-youtube-research.skill` bên dưới
+- **MCP cho Claude Code** (nâng cao, dùng NotebookLM thật) → xem hướng dẫn cài đặt
 
 ---
 
-## Nó giúp gì?
+## ⚡ Cách 1: Dùng Skill trong Cowork (Khuyến nghị)
 
-Bạn muốn làm YouTube content nhưng tốn quá nhiều thời gian research? Tool này giải quyết bằng cách tự động hóa toàn bộ luồng:
+**Không cần cài Node.js, không cần API key, dùng ngay.**
 
-```
-Bạn nhập chủ đề (ví dụ: "AI agent")
-         ↓
-Tool tìm video viral >100k views trong 1 tháng qua (Brave Search)
-         ↓
-Tự động add URLs vào Google NotebookLM
-         ↓
-Gemini đọc transcript, phân tích trend & pattern
-         ↓
-Nhận lại: keywords hot, thumbnail style, 5 ý tưởng video
-         ↓
-Chọn 1 ý tưởng → nhận script hoàn chỉnh
-```
+1. Tải file [`penny-youtube-research.skill`](https://github.com/pennydinh/penny-notebooklm-research/raw/main/penny-youtube-research.skill)
+2. Mở Claude desktop → Settings → Capabilities → Install Skill → chọn file vừa tải
+3. Gõ bất kỳ: `"nghiên cứu YouTube về AI agent"` là chạy
 
-**Giải quyết vấn đề gì:**
-- Không còn ngồi tìm video thủ công hàng giờ
-- Phân tích dựa trên dữ liệu thật (transcript từ video thật), không hallucinate
-- Script có citations — mọi claim đều có nguồn gốc
-- Lặp lại được: đổi niche, chạy lại, ra kết quả mới ngay
+**Kết quả nhận được:**
+- Danh sách video viral tìm được
+- Phân tích: trend, keywords hot, thumbnail pattern
+- 5 ý tưởng video cụ thể
+- Script hoàn chỉnh khi chọn idea
 
 ---
 
-## Yêu cầu
+## 🔧 Cách 2: MCP cho Claude Code (Nâng cao)
 
-- **Node.js** ≥ 18
-- **Chrome** (stable)
-- **Google account riêng** (không dùng tài khoản chính) cho NotebookLM
-- **Brave Search API key** — [Đăng ký miễn phí](https://brave.com/search/api/) (2,000 queries/tháng)
-- *(Tùy chọn)* **Apify token** — [Đăng ký](https://www.apify.com?fpr=get-api) để scrape chi tiết hơn ($5 credit miễn phí/tháng)
+Dùng khi muốn phân tích transcript thực từ video qua NotebookLM/Gemini — kết quả sâu hơn.
 
----
+### Yêu cầu
+- Node.js ≥ 18
+- Chrome
+- [Brave Search API key](https://brave.com/search/api/) (miễn phí, 2000 queries/tháng)
+- *(Tuỳ chọn)* [Apify token](https://www.apify.com?fpr=get-api) — scrape view count chính xác ($5 free credit/tháng)
 
-## Cài đặt nhanh
-
-### Cách 1 — Dùng với Claude Code (MCP)
+### Cài đặt
 
 ```bash
-# Clone repo
-git clone https://github.com/mp1391004/penny-notebooklm-research
+git clone https://github.com/pennydinh/penny-notebooklm-research
 cd penny-notebooklm-research
-
-# Cài dependencies
 npm install
-
-# Cấu hình API keys
 cp .env.example .env
-# Mở .env và điền BRAVE_API_KEY
-
-# Build
+# Mở .env, điền BRAVE_API_KEY
 npm run build
-
-# Add vào Claude Code
-claude mcp add penny-research -- node /đường/dẫn/tới/dist/index.js
+claude mcp add penny-research -- node $(pwd)/dist/index.js
 ```
 
-Sau đó trong Claude Code gõ lệnh đầu tiên:
-```
-setup_auth
-```
+### Lần đầu: Đăng nhập Google
 
-### Cách 2 — Chạy localhost Web UI (không cần Claude Code)
-
-```bash
-# Sau khi đã cài ở trên
-node dist/web/server.js
-
-# Mở trình duyệt: http://localhost:3333
-```
-
----
-
-## Luồng sử dụng đầy đủ
-
-### Với Claude Code
-
-**Bước 1 — Đăng nhập Google (làm 1 lần)**
+Mở Claude Code, gõ:
 ```
 setup_auth
 ```
-Chrome mở ra → đăng nhập Google account → cookies lưu lại tự động.
+Chrome mở ra → đăng nhập Google account riêng (không dùng tài khoản chính) → tự động lưu cookies.
 
-**Bước 2 — Tìm video viral**
-```
-brave_search_videos(query="AI agent 2025", freshness="pm", min_views=100000)
-```
+### Tạo notebook
 
-**Bước 3 — Tạo notebook & add sources**
+1. Vào [notebooklm.google.com](https://notebooklm.google.com) → tạo notebook mới
+2. Share → "Anyone with the link" → copy URL
 
-Tạo notebook mới tại [notebooklm.google.com](https://notebooklm.google.com) → Share → "Anyone with the link" → copy URL.
+### Chạy toàn bộ luồng trong 1 lệnh
 
 ```
-add_source(type="url", content="https://youtube.com/watch?v=...", notebook_url="https://notebooklm.google.com/notebook/...")
-```
-Lặp lại cho 3-5 video.
-
-**Bước 4 — Phân tích**
-```
-ask_question(
-  question="Phân tích trend, keywords, thumbnail pattern. Gợi ý 5 ý tưởng video.",
-  notebook_url="...",
-  source_format="footnotes"
+research_workflow(
+  topic="AI agent",
+  min_views=100000,
+  freshness="pm",
+  notebook_url="https://notebooklm.google.com/notebook/..."
 )
 ```
 
-**Bước 5 — Chọn idea & viết script**
-```
-ask_question(question="Viết script 1000 từ cho ý tưởng số 2. Bao gồm hook, body, CTA.")
-```
+### Hoặc từng bước
 
-**Hoặc chạy toàn bộ trong 1 lệnh:**
 ```
-research_workflow(topic="AI agent", min_views=100000, freshness="pm", notebook_url="...", include_news=true)
+# 1. Tìm video viral
+brave_search_videos(query="AI agent 2025", freshness="pm", min_views=100000)
+
+# 2. Add vào NotebookLM
+add_source(type="url", content="https://youtube.com/watch?v=...", notebook_url="...")
+
+# 3. Phân tích
+ask_question(question="Phân tích trend, keywords, gợi ý 5 ideas video", source_format="footnotes")
+
+# 4. Viết script
+ask_question(question="Viết script 1000 từ cho ý tưởng số 2")
 ```
 
 ---
 
-## Công cụ có sẵn
+## Tools có trong MCP
 
 | Tool | Mô tả |
 |------|-------|
 | `brave_search_videos` | Tìm video YouTube viral theo chủ đề & thời gian |
-| `brave_search_news` | Tìm tin tức / bài báo để source mixing |
-| `apify_scrape_youtube` | Scrape chi tiết: views, transcript, tags ([Đăng ký Apify](https://www.apify.com?fpr=get-api)) |
-| `research_workflow` | Chạy toàn bộ luồng trong 1 lệnh |
+| `brave_search_news` | Tìm tin tức để source mixing |
+| `apify_scrape_youtube` | Scrape chi tiết: views thực, transcript ([Đăng ký Apify](https://www.apify.com?fpr=get-api)) |
+| `research_workflow` | Chạy toàn bộ luồng 1 lệnh |
 | `add_source` | Add URL/text vào NotebookLM |
 | `ask_question` | Hỏi Gemini qua NotebookLM |
 | `setup_auth` | Đăng nhập Google lần đầu |
-| `get_health` | Kiểm tra trạng thái kết nối |
+| `get_health` | Kiểm tra trạng thái |
 
 ---
 
-## Câu hỏi thường gặp
+## FAQ
 
-**Dùng Google account nào?**  
-Tạo account riêng cho tool này. Không dùng tài khoản Google chính.
+**Dùng Google account nào?**
+Tạo account riêng. Không dùng tài khoản Google chính vì cookies lưu local.
 
-**Brave Search API có mất phí không?**  
-Free tier 2,000 queries/tháng — đủ dùng thoải mái. [Đăng ký tại đây](https://brave.com/search/api/).
+**Brave API có mất phí không?**
+Free 2000 queries/tháng. [Đăng ký tại đây](https://brave.com/search/api/).
 
-**Apify có bắt buộc không?**  
-Không. Brave Search đủ để tìm URLs. Apify cần khi muốn view count chính xác + transcript đầy đủ. [Đăng ký Apify](https://www.apify.com?fpr=get-api).
-
-**NotebookLM có giới hạn không?**  
-Free account: 50 sources/notebook, ~50 câu hỏi/ngày. Tạo 2-3 account riêng để tăng giới hạn.
+**Apify có bắt buộc không?**
+Không. Brave Search đủ để tìm URLs. Apify cần khi muốn view count chính xác.
 
 ---
 
-## License
-
-MIT — Fork thoải mái, star nếu thấy hữu ích ⭐
-
-*Built on top of [notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp) by PleasePrompto.*
+MIT License · [pennydinh](https://github.com/pennydinh)
