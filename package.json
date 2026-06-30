@@ -1,0 +1,69 @@
+{
+  "name": "penny-notebooklm-research",
+  "version": "1.0.0",
+  "description": "MCP server cho Google NotebookLM với Brave Search & Apify — nghiên cứu YouTube tự động",
+  "type": "module",
+  "bin": {
+    "penny-research": "dist/index.js",
+    "penny-research-ui": "dist/web/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "chmod +x dist/index.js",
+    "watch": "tsc --watch",
+    "dev": "tsx watch src/index.ts",
+    "prepare": "npm run build",
+    "test": "tsx src/index.ts",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "check": "npm run format:check && npm run lint && npm run build",
+    "web": "node dist/web/server.js",
+    "dev:web": "tsx src/web/server.ts"
+  },
+  "keywords": [
+    "mcp",
+    "notebooklm",
+    "gemini",
+    "ai",
+    "claude"
+  ],
+  "author": "mp1391004",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mp1391004/penny-notebooklm-research.git"
+  },
+  "homepage": "https://github.com/mp1391004/penny-notebooklm-research#readme",
+  "bugs": {
+    "url": "https://github.com/PleasePrompto/notebooklm-mcp/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "NOTEBOOKLM_USAGE.md",
+    "LICENSE",
+    "docs"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "dotenv": "^16.4.0",
+    "env-paths": "^3.0.0",
+    "globby": "^14.1.0",
+    "patchright": "^1.48.2",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.11.0",
+    "eslint": "^10.2.1",
+    "prettier": "^3.8.3",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.59.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
