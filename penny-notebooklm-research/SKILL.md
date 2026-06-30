@@ -13,12 +13,12 @@ Skill này yêu cầu MCP `penny-notebooklm-research` đã được cài. Không
 
 Gọi `get_health` ngay khi skill trigger.
 
-**Nếu tool `get_health` không tồn tại** → MCP chưa cài. **Dừng lại hoàn toàn.** Thông báo:
+**Nếu tool `get_health` không tồn tại** → MCP chưa cài. Hiển thị hướng dẫn bên dưới và dừng — không chạy tiếp.
 
-> ❌ Skill này cần MCP `penny-notebooklm-research` — chưa phát hiện trên máy này.
-> Cài MCP trước rồi restart Claude, sau đó thử lại.
+> ⚠️ **Chưa tìm thấy MCP `penny-notebooklm-research` trên máy này.**
+> Cài MCP theo hướng dẫn bên dưới, restart Claude, rồi thử lại.
 
-### Hướng dẫn cài MCP (5 phút)
+### Cài MCP (làm 1 lần, ~5 phút)
 
 **Yêu cầu:** Máy đã có Node.js (kiểm tra: `node -v` trong Terminal)
 
