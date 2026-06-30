@@ -1,32 +1,85 @@
 # 🔬 Penny NotebookLM Research
 
-Nghiên cứu YouTube tự động: tìm video viral → phân tích trend → gợi ý ideas → viết script.
+Nghiên cứu YouTube theo đúng luồng: **Brave Search tìm video → scrape transcript → add vào NotebookLM → Gemini phân tích transcript thực → gợi ý ideas → viết script.**
 
-Có 2 cách dùng:
-- **Skill cho Cowork** (không cần cài gì) → tải file `penny-notebooklm-research.skill` bên dưới
-- **MCP cho Claude Code** (nâng cao, dùng NotebookLM thật) → xem hướng dẫn cài đặt
+Kết quả không phải từ Claude tự đoán — mà từ Gemini đọc transcript thực của từng video.
 
 ---
 
-## ⚡ Cách 1: Dùng Skill trong Cowork (Khuyến nghị)
+## Yêu cầu bắt buộc
 
-**Không cần cài Node.js, không cần API key, dùng ngay.**
+Cần cài **cả 2 thứ**:
+1. **MCP** (Node.js server chạy local) — để gọi Brave Search, Apify, điều khiển NotebookLM
+2. **Skill** (file `.skill`) — để Claude Cowork biết cách điều phối luồng
+
+Thiếu một trong hai thì không chạy được.
+
+---
+
+## Bước 1: Cài MCP (làm 1 lần)
+
+**Script tự động — dán vào Terminal:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pennydinh/penny-notebooklm-research/main/install.sh | bash
+```
+
+Script sẽ tự clone repo, `npm install`, build, và đăng ký MCP vào Claude.
+
+**Yêu cầu:** Node.js ≥ 18 và Chrome đã cài.
+
+Sau khi chạy xong → điền API key vào file `.env`:
+- [`BRAVE_API_KEY`](https://brave.com/search/api/) — miễn phí, 2000 queries/tháng
+- [`APIFY_TOKEN`](https://www.apify.com?fpr=get-api) — tùy chọn, scrape view count chính xác ($5 free credit/tháng)
+
+Sau đó **restart Claude**.
+
+---
+
+## Bước 2: Cài Skill (làm 1 lần)
 
 1. Tải file [`penny-notebooklm-research.skill`](https://github.com/pennydinh/penny-notebooklm-research/raw/main/penny-notebooklm-research.skill)
 2. Mở Claude desktop → Settings → Capabilities → Install Skill → chọn file vừa tải
-3. Gõ bất kỳ: `"nghiên cứu YouTube về AI agent"` là chạy
-
-**Kết quả nhận được:**
-- Danh sách video viral tìm được
-- Phân tích: trend, keywords hot, thumbnail pattern
-- 5 ý tưởng video cụ thể
-- Script hoàn chỉnh khi chọn idea
 
 ---
 
-## 🔧 Cách 2: MCP cho Claude Code (Nâng cao)
+## Bước 3: Setup lần đầu trong Claude
 
-Dùng khi muốn phân tích transcript thực từ video qua NotebookLM/Gemini — kết quả sâu hơn.
+Gõ: `setup_auth` → Chrome mở → đăng nhập Google account **phụ** (không dùng tài khoản chính).
+
+Vào [notebooklm.google.com](https://notebooklm.google.com) → tạo notebook → Share → "Anyone with the link" → copy URL.
+
+---
+
+## Từ lần 2 trở đi
+
+Gõ bình thường trong Claude Cowork:
+```
+nghiên cứu YouTube về AI agent, views >50k, tuần qua
+notebook: https://notebooklm.google.com/notebook/...
+```
+
+Claude tự chạy toàn bộ: tìm video → add vào NotebookLM → Gemini phân tích transcript → ra 5 ideas → viết script khi chọn.
+
+---
+
+## Luồng thực tế
+
+```
+Brave Search / Apify
+  → tìm video viral theo chủ đề + views + thời gian
+  → add từng URL vào NotebookLM
+  → NotebookLM/Gemini đọc transcript thực
+  → phân tích: trend, keywords, thumbnail pattern, hook style
+  → gợi ý 5 ideas
+  → viết script hoàn chỉnh khi chọn idea
+```
+
+---
+
+## 🔧 Cài thủ công (thay cho install.sh)
+
+
 
 ### Yêu cầu
 - Node.js ≥ 18
