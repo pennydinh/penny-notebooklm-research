@@ -262,6 +262,17 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case "create_notebook":
+            result = await this.toolHandlers.handleCreateNotebook(
+              args as {
+                name?: string;
+                description?: string;
+                topics?: string[];
+                show_browser?: boolean;
+              }
+            );
+            break;
+
           case "add_notebook":
             result = await this.toolHandlers.handleAddNotebook(
               args as {

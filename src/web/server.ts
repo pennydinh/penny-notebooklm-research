@@ -5,14 +5,8 @@
  */
 
 import http from "http";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { braveSearchVideos, braveSearchNews } from "../brave/client.js";
-import { apifyScrapeYoutube } from "../apify/client.js";
+import { braveSearchVideos } from "../brave/client.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PUBLIC_DIR = path.join(__dirname, "public");
 const PORT = Number(process.env.WEB_PORT ?? 3333);
 
 // Inline HTML để không cần static files

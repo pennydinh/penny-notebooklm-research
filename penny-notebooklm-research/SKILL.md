@@ -58,15 +58,16 @@ Hỏi người dùng (nếu chưa cung cấp):
 - Chủ đề nghiên cứu là gì? (ví dụ: "AI agent", "vibe coding", "làm YouTube kiếm tiền")
 - Khoảng thời gian: tuần qua hay tháng qua?
 - Ngưỡng views tối thiểu: 50k, 100k, hay 500k?
-- Notebook NotebookLM nào? (URL) — nếu chưa có, hướng dẫn tạo mới bên dưới
 
-**Tạo notebook mới nếu cần:**
-> Vào [notebooklm.google.com](https://notebooklm.google.com) → tạo notebook mới → nhấn Share → chọn "Anyone with the link can view" → copy URL dán vào đây.
+> ⚠️ **MỖI CHỦ ĐỀ DÙNG 1 NOTEBOOK RIÊNG.** KHÔNG add chủ đề mới vào notebook đã chứa chủ đề khác — Gemini sẽ phân tích lẫn lộn cả 2 chủ đề và cho kết quả sai.
 
-Sau khi có URL, gọi:
+**Tự tạo notebook mới cho chủ đề này (KHÔNG bắt user làm tay):**
 ```
-add_notebook(url="[notebook_url]", name="YouTube Research — [chủ đề]")
+create_notebook(name="YouTube Research — [chủ đề]")
 ```
+Tool tự bấm "Tạo mới" trên NotebookLM, trả về `notebook_url` + `notebook_id`, đồng thời đăng ký & chọn nó làm active. **Lưu `notebook_url` này dùng cho tất cả các bước sau.**
+
+> Nếu user muốn tái dùng một notebook CÓ SẴN cho đúng chủ đề đó → bỏ qua `create_notebook`, hỏi URL và dùng URL đó.
 
 ---
 
@@ -98,7 +99,7 @@ Lấy top 5 URLs có views cao nhất từ kết quả.
 
 ## BƯỚC 3: Add vào NotebookLM
 
-Gọi `add_source` tuần tự cho từng URL (không add đồng thời):
+Gọi `add_source` tuần tự cho từng URL (không add đồng thời). Link YouTube được hỗ trợ trực tiếp — MCP tự nhận diện và đưa vào đúng nguồn YouTube của NotebookLM:
 
 ```
 add_source(type="url", content="[url_1]", notebook_url="[notebook_url]")
@@ -108,7 +109,7 @@ add_source(type="url", content="[url_4]", notebook_url="[notebook_url]")
 add_source(type="url", content="[url_5]", notebook_url="[notebook_url]")
 ```
 
-Sau khi add xong → đợi 15 giây để NotebookLM index transcript.
+> ⏳ **Đợi index transcript trước khi hỏi.** Video YouTube cần thời gian để NotebookLM tải transcript — đợi **45–90 giây** sau khi add xong (lâu hơn nguồn web thường). Nếu `ask_question` báo "chỉ có N/5 nguồn có transcript" → đợi thêm rồi hỏi lại.
 
 Nếu `add_source` lỗi "restricted" → nhắc người dùng:
 > "Vào NotebookLM → Settings → Share → chọn 'Anyone with the link' rồi thử lại."

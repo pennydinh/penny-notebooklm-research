@@ -140,17 +140,23 @@ export const Selectors = {
      * animation class and resistant to Material-UI version bumps. Avoid
      * `.cdk-overlay-pane` (matches every dropdown / emoji picker / menu).
      */
-    overlayPane: '[role="dialog"]',
-    overlayInput: '[role="dialog"] input[type="text"]:not([readonly])',
-    overlayTextarea: '[role="dialog"] textarea',
+    /**
+     * The live Add-source modal. We MUST anchor on `.mdc-dialog--open` because
+     * NotebookLM keeps an always-present emoji-keyboard `[role="dialog"]` in the
+     * DOM; a bare `[role="dialog"]` + `.first()` grabs that emoji picker instead
+     * of the source modal, so every overlay-scoped action targets the wrong node.
+     */
+    overlayPane: '[role="dialog"].mdc-dialog--open',
+    overlayInput: '[role="dialog"].mdc-dialog--open input[type="text"]:not([readonly])',
+    overlayTextarea: '[role="dialog"].mdc-dialog--open textarea',
     /**
      * Source-type buttons in the Add-source overlay. Google ships them
      * *without* aria-labels — the only stable, language-agnostic anchor is
      * the Material-Symbols icon name baked into a `<mat-icon>` text node.
      */
     sourceTypeUrl: [
-      // Icon-anchored (language-free) — primary path.
-      "button.drop-zone-icon-button:has(mat-icon.youtube-icon)",
+      // Icon-anchored (language-free) — primary path. NOTE: must NOT match the
+      // YouTube chip; YouTube URLs are routed to sourceTypeYoutube separately.
       'button.drop-zone-icon-button:has(mat-icon:text-is("link"))',
       // Visible-text fallbacks for the eight major locales.
       'button.drop-zone-icon-button:has-text("Websites")',
@@ -180,8 +186,15 @@ export const Selectors = {
       '[data-type="text"]',
     ],
     sourceTypeYoutube: [
-      "button.drop-zone-icon-button mat-icon.youtube-icon",
+      // Icon-anchored (language-free) — primary path. Click the BUTTON (so the
+      // handler fires), not the inner <mat-icon>.
+      "button.drop-zone-icon-button:has(mat-icon.youtube-icon)",
       'button.drop-zone-icon-button:has(mat-icon:text-is("video_youtube"))',
+      'button.drop-zone-icon-button:has(mat-icon:text-is("smart_display"))',
+      'button.drop-zone-icon-button:has(mat-icon:text-is("play_circle"))',
+      // Visible-text fallback — "YouTube" is a brand name, identical in every locale.
+      'button.drop-zone-icon-button:has-text("YouTube")',
+      'span:has-text("YouTube")',
     ],
     sourceTypeFile: [
       'input[type="file"]',
@@ -200,6 +213,12 @@ export const Selectors = {
      * visible-text variants are fallbacks for older builds.
      */
     insertConfirm: [
+      // Vietnamese-first: the live notebook runs in vi-VN and labels the submit
+      // button "Chèn" (verified 2026-06-30 against the real Add-source modal).
+      // confirmInsert clicks the first visible+enabled match, so keep these early.
+      'button:has-text("Chèn")',
+      'button.mdc-button:has-text("Chèn")',
+      'button:has-text("Thêm nguồn")',
       // Class-anchored (language-free).
       'button.mdc-button--raised:has-text("Insert")',
       'button.mat-flat-button:has-text("Insert")',

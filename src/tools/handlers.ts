@@ -14,6 +14,7 @@ import type {
   UpdateNotebookInput,
 } from "../library/types.js";
 import type { AddSourceResult } from "../notebooklm/sources.js";
+import { createNotebook } from "../notebooklm/notebook-create.js";
 import type { AudioGenerationResult, DownloadAudioResult } from "../notebooklm/audio.js";
 import { CONFIG, applyBrowserOptions, type BrowserOptions } from "../config.js";
 import { log } from "../utils/logger.js";
@@ -605,6 +606,67 @@ export class ToolHandlers {
       };
     } finally {
       // Restore original CONFIG
+      Object.assign(CONFIG, originalConfig);
+    }
+  }
+
+  /**
+   * Handle create_notebook tool — spin up a brand-new NotebookLM notebook so
+   * each research topic gets its own clean notebook (no cross-topic bleed).
+   * Returns the new notebook URL/id; also registers + selects it in the local
+   * library when a name is supplied so later calls can omit notebook_url.
+   */
+  async handleCreateNotebook(args: {
+    name?: string;
+    description?: string;
+    topics?: string[];
+    show_browser?: boolean;
+  }): Promise<
+    ToolResult<{ notebook_url: string; notebook_id: string; name: string; registered: boolean }>
+  > {
+    log.info(`🔧 [TOOL] create_notebook called (name=${args.name ?? "—"})`);
+    const originalConfig = { ...CONFIG };
+    if (args.show_browser !== undefined) {
+      Object.assign(CONFIG, applyBrowserOptions(undefined, args.show_browser));
+    }
+    const overrideHeadless = args.show_browser === undefined ? undefined : args.show_browser;
+    let page = null;
+    try {
+      const context = await this.sessionManager.getBrowserContext(overrideHeadless);
+      const isAuth = await this.authManager.validateCookiesExpiry(context);
+      if (!isAuth) {
+        return {
+          success: false,
+          error: "Not authenticated with NotebookLM. Run setup_auth first, then retry.",
+        };
+      }
+      page = await context.newPage();
+      const { url, id } = await createNotebook(page);
+
+      // Best-effort: register + select so subsequent calls can default to it.
+      let registered = false;
+      const name = args.name ?? `YouTube Research — ${new Date().toISOString().slice(0, 10)}`;
+      try {
+        const nb = this.library.addNotebook({
+          url,
+          name,
+          description: args.description ?? "Auto-created notebook for a single research topic.",
+          topics: args.topics ?? ["youtube research"],
+        });
+        this.library.selectNotebook(nb.id);
+        registered = true;
+      } catch (e) {
+        log.warning(`  ⚠️  create_notebook: library registration skipped (${e})`);
+      }
+
+      log.success(`✅ [TOOL] create_notebook completed: ${url}`);
+      return { success: true, data: { notebook_url: url, notebook_id: id, name, registered } };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] create_notebook failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
+    } finally {
+      if (page) await page.close().catch(() => undefined);
       Object.assign(CONFIG, originalConfig);
     }
   }
