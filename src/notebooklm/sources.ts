@@ -34,6 +34,15 @@ import { log } from "../utils/logger.js";
 
 export type SourceType = "url" | "text";
 
+/** Internal picker target: the public `url` type fans out to the dedicated
+ *  YouTube chip when the content is a YouTube link. */
+type PickerType = "url" | "text" | "youtube";
+
+/** Detect YouTube watch / shorts / live / embed / youtu.be URLs. */
+function isYouTubeUrl(s: string): boolean {
+  return /(?:youtube\.com\/(?:watch\?|shorts\/|live\/|embed\/)|youtu\.be\/)/i.test(s.trim());
+}
+
 export interface AddSourceInput {
   type: SourceType;
   /** URL when `type === "url"`, raw text when `type === "text"`. */
@@ -61,7 +70,14 @@ export async function addSource(page: Page, input: AddSourceInput): Promise<AddS
 
     // 2. Pick the source type if there is a picker. Some overlay variants
     //    drop straight into an input field; pickSourceType is a no-op then.
-    await pickSourceType(page, input.type);
+    //    YouTube URLs need the dedicated "YouTube" chip — the generic
+    //    "Website" URL crawler silently drops them (YT was out of scope in
+    //    v2.0.0). Auto-detect and route to the YouTube tab so callers can keep
+    //    passing type="url" with a YouTube link.
+    const effectiveType: PickerType =
+      input.type === "url" && isYouTubeUrl(input.content) ? "youtube" : input.type;
+    if (effectiveType === "youtube") log.info("  ▶️  YouTube URL detected → using YouTube chip");
+    await pickSourceType(page, effectiveType);
 
     // 3. Fill the content + optional title.
     await fillSourceContent(page, input);
@@ -230,9 +246,13 @@ async function isOverlayVisible(page: Page): Promise<boolean> {
     .catch(() => false);
 }
 
-async function pickSourceType(page: Page, type: SourceType): Promise<void> {
+async function pickSourceType(page: Page, type: PickerType): Promise<void> {
   const candidates =
-    type === "url" ? Selectors.sources.sourceTypeUrl : Selectors.sources.sourceTypeText;
+    type === "youtube"
+      ? Selectors.sources.sourceTypeYoutube
+      : type === "url"
+        ? Selectors.sources.sourceTypeUrl
+        : Selectors.sources.sourceTypeText;
   const overlay = page.locator(Selectors.sources.overlayPane).first();
   for (const sel of candidates) {
     const target = overlay.locator(sel).first();

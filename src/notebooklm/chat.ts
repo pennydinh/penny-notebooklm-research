@@ -172,9 +172,34 @@ const RATE_LIMIT_MESSAGES = [
   "1日あたりの上限に達しました",
 ];
 
+/**
+ * NotebookLM streams Gemini's "thought" summaries as their own
+ * `.to-user-container` nodes while it works — short English gerund-phrase
+ * headers ("Defining the Objective", "Refining the Approach", "Focusing on
+ * Specific Videos", "I'm now zeroing in on…"). They render even when the
+ * notebook locale is non-English. The naive `:last-child` extractor used to
+ * lock onto these instead of the real answer, so we detect and skip them.
+ */
+const THINKING_RE =
+  /^(Defining|Refining|Identifying|Focusing|Analyzing|Analysing|Exploring|Examining|Considering|Mapping|Gathering|Reviewing|Synthesizing|Synthesising|Formulating|Investigating|Pinpointing|Determining|Assessing|Evaluating|Compiling|Structuring|Outlining|Drafting|Initiating|Beginning|Planning|Confirming|Clarifying|Understanding|Processing|Zeroing|Crafting|Constructing|Prioritizing|Prioritising)\b/;
+
+function isThinking(text: string): boolean {
+  const t = text.trim();
+  // Real answers run long; thought headers are short. Guard against nuking a
+  // legitimate answer that merely opens with a gerund.
+  if (t.length > 600) return false;
+  if (THINKING_RE.test(t)) return true;
+  // First-person reasoning narration NotebookLM streams as "thoughts".
+  if (/(^|\n)\s*(I'm now|I am now|I've been|I have been|My (aim|goal|focus|plan)|Let me)\b/i.test(t))
+    return true;
+  return false;
+}
+
 function isPlaceholder(text: string): boolean {
   const lower = text.toLowerCase();
   if (PLACEHOLDER_SNIPPETS.some((s) => lower.includes(s))) return true;
+  // Gemini "thinking" thought-summaries are not the final answer.
+  if (isThinking(text)) return true;
   // Short text ending with "..." is almost certainly a loading indicator;
   // real responses run well past 50 chars.
   if (text.length < 50 && text.trim().endsWith("...")) return true;
@@ -304,17 +329,24 @@ export async function waitForStableAnswer(
 }
 
 /**
- * Read the latest answer container's text and strip UI-control leakage.
- * Uses `:last-child` so we always target the most recent turn.
+ * Read the most recent *real* answer, skipping Gemini "thinking" thought-
+ * summary nodes that NotebookLM streams as trailing `.to-user-container`
+ * elements. We can no longer trust `:last-child` — during generation the last
+ * node is a thought header, not the answer. Instead we walk every answer
+ * container from the end and return the first one that is neither a thinking
+ * node nor a loading placeholder. `waitForStableAnswer`'s `ignoreTexts` then
+ * filters out prior turns so we settle on the new answer once it renders.
  */
 async function readLatestAnswer(page: Page): Promise<string | null> {
   try {
-    const raw = await page
-      .locator(Selectors.chat.latestAnswerText)
-      .last()
-      .innerText({ timeout: 2_000 });
-    const cleaned = sanitizeAnswer(raw);
-    return cleaned.length > 0 ? cleaned : null;
+    const texts = await page.locator(Selectors.chat.answerText).allInnerTexts();
+    for (let i = texts.length - 1; i >= 0; i--) {
+      const cleaned = sanitizeAnswer(texts[i] ?? "");
+      if (cleaned.length === 0) continue;
+      if (isThinking(cleaned) || isPlaceholder(cleaned)) continue;
+      return cleaned;
+    }
+    return null;
   } catch {
     return null;
   }

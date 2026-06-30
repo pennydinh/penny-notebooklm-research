@@ -60,8 +60,10 @@ Hỏi người dùng (nếu chưa cung cấp):
 - Ngưỡng views tối thiểu: 50k, 100k, hay 500k?
 - Notebook NotebookLM nào? (URL) — nếu chưa có, hướng dẫn tạo mới bên dưới
 
-**Tạo notebook mới nếu cần:**
-> Vào [notebooklm.google.com](https://notebooklm.google.com) → tạo notebook mới → nhấn Share → chọn "Anyone with the link can view" → copy URL dán vào đây.
+> ⚠️ **MỖI CHỦ ĐỀ DÙNG 1 NOTEBOOK RIÊNG.** KHÔNG add chủ đề mới vào notebook đã chứa chủ đề khác — Gemini sẽ phân tích lẫn lộn cả 2 chủ đề và cho kết quả sai. Nếu notebook đang active đã có nguồn về chủ đề khác → tạo notebook MỚI cho chủ đề lần này.
+
+**Tạo notebook mới (khuyên dùng cho mỗi chủ đề):**
+> Vào [notebooklm.google.com](https://notebooklm.google.com) → "Tạo mới" → nhấn Share → chọn "Anyone with the link can view" → copy URL dán vào đây.
 
 Sau khi có URL, gọi:
 ```
@@ -98,7 +100,7 @@ Lấy top 5 URLs có views cao nhất từ kết quả.
 
 ## BƯỚC 3: Add vào NotebookLM
 
-Gọi `add_source` tuần tự cho từng URL (không add đồng thời):
+Gọi `add_source` tuần tự cho từng URL (không add đồng thời). Link YouTube được hỗ trợ trực tiếp — MCP tự nhận diện và đưa vào đúng nguồn YouTube của NotebookLM:
 
 ```
 add_source(type="url", content="[url_1]", notebook_url="[notebook_url]")
@@ -108,7 +110,7 @@ add_source(type="url", content="[url_4]", notebook_url="[notebook_url]")
 add_source(type="url", content="[url_5]", notebook_url="[notebook_url]")
 ```
 
-Sau khi add xong → đợi 15 giây để NotebookLM index transcript.
+> ⏳ **Đợi index transcript trước khi hỏi.** Video YouTube cần thời gian để NotebookLM tải transcript — đợi **45–90 giây** sau khi add xong (lâu hơn nguồn web thường). Nếu `ask_question` báo "chỉ có N/5 nguồn có transcript" → đợi thêm rồi hỏi lại.
 
 Nếu `add_source` lỗi "restricted" → nhắc người dùng:
 > "Vào NotebookLM → Settings → Share → chọn 'Anyone with the link' rồi thử lại."
