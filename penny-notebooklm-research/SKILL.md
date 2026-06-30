@@ -58,17 +58,16 @@ Hỏi người dùng (nếu chưa cung cấp):
 - Chủ đề nghiên cứu là gì? (ví dụ: "AI agent", "vibe coding", "làm YouTube kiếm tiền")
 - Khoảng thời gian: tuần qua hay tháng qua?
 - Ngưỡng views tối thiểu: 50k, 100k, hay 500k?
-- Notebook NotebookLM nào? (URL) — nếu chưa có, hướng dẫn tạo mới bên dưới
 
-> ⚠️ **MỖI CHỦ ĐỀ DÙNG 1 NOTEBOOK RIÊNG.** KHÔNG add chủ đề mới vào notebook đã chứa chủ đề khác — Gemini sẽ phân tích lẫn lộn cả 2 chủ đề và cho kết quả sai. Nếu notebook đang active đã có nguồn về chủ đề khác → tạo notebook MỚI cho chủ đề lần này.
+> ⚠️ **MỖI CHỦ ĐỀ DÙNG 1 NOTEBOOK RIÊNG.** KHÔNG add chủ đề mới vào notebook đã chứa chủ đề khác — Gemini sẽ phân tích lẫn lộn cả 2 chủ đề và cho kết quả sai.
 
-**Tạo notebook mới (khuyên dùng cho mỗi chủ đề):**
-> Vào [notebooklm.google.com](https://notebooklm.google.com) → "Tạo mới" → nhấn Share → chọn "Anyone with the link can view" → copy URL dán vào đây.
-
-Sau khi có URL, gọi:
+**Tự tạo notebook mới cho chủ đề này (KHÔNG bắt user làm tay):**
 ```
-add_notebook(url="[notebook_url]", name="YouTube Research — [chủ đề]")
+create_notebook(name="YouTube Research — [chủ đề]")
 ```
+Tool tự bấm "Tạo mới" trên NotebookLM, trả về `notebook_url` + `notebook_id`, đồng thời đăng ký & chọn nó làm active. **Lưu `notebook_url` này dùng cho tất cả các bước sau.**
+
+> Nếu user muốn tái dùng một notebook CÓ SẴN cho đúng chủ đề đó → bỏ qua `create_notebook`, hỏi URL và dùng URL đó.
 
 ---
 

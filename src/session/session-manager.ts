@@ -50,6 +50,16 @@ export class SessionManager {
   }
 
   /**
+   * Get (or lazily create) the shared, authenticated browser context. Used by
+   * flows that need a raw page outside the notebook-bound BrowserSession model
+   * — e.g. `create_notebook`, which operates on the NotebookLM home page where
+   * there is no chat input for `BrowserSession.init()` to wait on.
+   */
+  async getBrowserContext(overrideHeadless?: boolean) {
+    return this.sharedContextManager.getOrCreateContext(overrideHeadless);
+  }
+
+  /**
    * Generate a unique session ID
    */
   private generateSessionId(): string {

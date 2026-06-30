@@ -8,6 +8,50 @@ import type { Tool } from "@modelcontextprotocol/sdk/types.js";
  */
 export const notebookManagementTools: Tool[] = [
   {
+    name: "create_notebook",
+    description:
+      "Create a BRAND-NEW empty NotebookLM notebook and return its URL/id. " +
+      "Use this at the START of every research topic so each topic gets its " +
+      "own clean notebook — mixing multiple topics in one notebook makes " +
+      "Gemini's analysis bleed across subjects.\n\n" +
+      "Unlike `add_notebook` (which only registers an EXISTING share-link), " +
+      "this actually clicks 'Create new' on the NotebookLM home for you — no " +
+      "manual create/share step needed. Requires an authenticated session " +
+      "(`setup_auth`). On success it also registers + selects the notebook in " +
+      "the local library, so subsequent `add_source` / `ask_question` calls " +
+      "can omit `notebook_url`. Pass the returned `notebook_url` to " +
+      "`add_source` for each video, then `ask_question` to analyse.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          description:
+            "Display name for the new notebook, e.g. 'YouTube Research — Claude marketing'. " +
+            "Defaults to a dated name if omitted.",
+        },
+        description: {
+          type: "string",
+          description: "Optional 1–2 sentence summary of the research topic.",
+        },
+        topics: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional 3–5 topics this notebook will cover.",
+        },
+        show_browser: {
+          type: "boolean",
+          description: "Show the browser window for debugging. Default: false.",
+        },
+      },
+      required: [],
+    },
+    annotations: {
+      title: "Create new notebook",
+      readOnlyHint: false,
+    },
+  },
+  {
     name: "add_notebook",
     description:
       "Register a NotebookLM notebook in the local library so it can be " +

@@ -141,6 +141,9 @@ const ERROR_SNIPPETS = [
   "システムが応答できませんでした",
   "エラーが発生しました",
   "後でもう一度お試しください",
+  // Vietnamese (NotebookLM transient "I'm having an issue" message)
+  "tôi đang gặp sự cố",
+  "không thể trả lời ngay bây giờ",
 ];
 
 const RATE_LIMIT_MESSAGES = [
