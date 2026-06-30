@@ -5,7 +5,7 @@ description: "Nghiên cứu YouTube qua NotebookLM: tìm video viral bằng Brav
 
 # Penny NotebookLM Research
 
-Skill này làm 2 việc: **hướng dẫn cài đặt** (lần đầu) và **chạy luồng nghiên cứu** (mỗi lần dùng).
+Skill này yêu cầu MCP `penny-notebooklm-research` đã được cài. Không có MCP → dừng lại, không chạy tiếp.
 
 ---
 
@@ -13,11 +13,12 @@ Skill này làm 2 việc: **hướng dẫn cài đặt** (lần đầu) và **ch
 
 Gọi `get_health` ngay khi skill trigger.
 
-**Nếu tool `get_health` không tồn tại** → MCP chưa cài. Hiển thị hướng dẫn này:
+**Nếu tool `get_health` không tồn tại** → MCP chưa cài. **Dừng lại hoàn toàn.** Thông báo:
 
----
+> ❌ Skill này cần MCP `penny-notebooklm-research` — chưa phát hiện trên máy này.
+> Cài MCP trước rồi restart Claude, sau đó thử lại.
 
-### 🔧 Cài đặt lần đầu (5 phút)
+### Hướng dẫn cài MCP (5 phút)
 
 **Yêu cầu:** Máy đã có Node.js (kiểm tra: `node -v` trong Terminal)
 
