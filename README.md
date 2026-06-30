@@ -3,7 +3,7 @@
 Nghiên cứu YouTube tự động: tìm video viral → phân tích trend → gợi ý ideas → viết script.
 
 Có 2 cách dùng:
-- **Skill cho Cowork** (không cần cài gì) → tải file `penny-youtube-research.skill` bên dưới
+- **Skill cho Cowork** (không cần cài gì) → tải file `penny-notebooklm-research.skill` bên dưới
 - **MCP cho Claude Code** (nâng cao, dùng NotebookLM thật) → xem hướng dẫn cài đặt
 
 ---
@@ -12,7 +12,7 @@ Có 2 cách dùng:
 
 **Không cần cài Node.js, không cần API key, dùng ngay.**
 
-1. Tải file [`penny-youtube-research.skill`](https://github.com/pennydinh/penny-notebooklm-research/raw/main/penny-youtube-research.skill)
+1. Tải file [`penny-notebooklm-research.skill`](https://github.com/pennydinh/penny-notebooklm-research/raw/main/penny-notebooklm-research.skill)
 2. Mở Claude desktop → Settings → Capabilities → Install Skill → chọn file vừa tải
 3. Gõ bất kỳ: `"nghiên cứu YouTube về AI agent"` là chạy
 
